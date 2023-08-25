@@ -28,75 +28,106 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.btn_clamp_head = new System.Windows.Forms.Button();
+            this.btn_home = new System.Windows.Forms.Button();
+            this.icImagingControl1 = new TIS.Imaging.ICImagingControl();
+            this.tbx_pictures = new System.Windows.Forms.TextBox();
+            this.btn_capture = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.lbl_conn_status = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.icImagingControl1)).BeginInit();
             this.SuspendLayout();
             // 
-            // button1
+            // btn_home
             // 
-            this.button1.Location = new System.Drawing.Point(12, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(110, 56);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "連線";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btn_home.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.btn_home.Location = new System.Drawing.Point(750, 58);
+            this.btn_home.Name = "btn_home";
+            this.btn_home.Size = new System.Drawing.Size(96, 55);
+            this.btn_home.TabIndex = 5;
+            this.btn_home.Text = "HOME";
+            this.btn_home.UseVisualStyleBackColor = true;
+            this.btn_home.Click += new System.EventHandler(this.btn_home_Click);
             // 
-            // button2
+            // icImagingControl1
             // 
-            this.button2.Location = new System.Drawing.Point(12, 74);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(110, 55);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "Read";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.btn_read_Click);
+            this.icImagingControl1.BackColor = System.Drawing.Color.White;
+            this.icImagingControl1.DeviceListChangedExecutionMode = TIS.Imaging.EventExecutionMode.Invoke;
+            this.icImagingControl1.DeviceLostExecutionMode = TIS.Imaging.EventExecutionMode.AsyncInvoke;
+            this.icImagingControl1.ImageAvailableExecutionMode = TIS.Imaging.EventExecutionMode.MultiThreaded;
+            this.icImagingControl1.LiveDisplayPosition = new System.Drawing.Point(0, 0);
+            this.icImagingControl1.Location = new System.Drawing.Point(12, 14);
+            this.icImagingControl1.Name = "icImagingControl1";
+            this.icImagingControl1.Size = new System.Drawing.Size(720, 540);
+            this.icImagingControl1.TabIndex = 7;
             // 
-            // button3
+            // tbx_pictures
             // 
-            this.button3.Location = new System.Drawing.Point(12, 135);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(110, 58);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "Write";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.tbx_pictures.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.tbx_pictures.Location = new System.Drawing.Point(110, 568);
+            this.tbx_pictures.Name = "tbx_pictures";
+            this.tbx_pictures.Size = new System.Drawing.Size(622, 27);
+            this.tbx_pictures.TabIndex = 9;
+            this.tbx_pictures.Text = "C:\\DOSE\\Pictures";
             // 
-            // btn_clamp_head
+            // btn_capture
             // 
-            this.btn_clamp_head.Location = new System.Drawing.Point(128, 12);
-            this.btn_clamp_head.Name = "btn_clamp_head";
-            this.btn_clamp_head.Size = new System.Drawing.Size(107, 56);
-            this.btn_clamp_head.TabIndex = 3;
-            this.btn_clamp_head.Text = "夾住筆頭";
-            this.btn_clamp_head.UseVisualStyleBackColor = true;
-            this.btn_clamp_head.Click += new System.EventHandler(this.btn_clamp_head_Click);
+            this.btn_capture.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.btn_capture.Location = new System.Drawing.Point(750, 119);
+            this.btn_capture.Name = "btn_capture";
+            this.btn_capture.Size = new System.Drawing.Size(96, 55);
+            this.btn_capture.TabIndex = 10;
+            this.btn_capture.Text = "手動拍照";
+            this.btn_capture.UseVisualStyleBackColor = true;
+            this.btn_capture.Click += new System.EventHandler(this.btn_capture_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label3.Location = new System.Drawing.Point(12, 571);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(92, 16);
+            this.label3.TabIndex = 16;
+            this.label3.Text = "Capture Path:";
+            // 
+            // lbl_conn_status
+            // 
+            this.lbl_conn_status.AutoSize = true;
+            this.lbl_conn_status.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.lbl_conn_status.Location = new System.Drawing.Point(747, 27);
+            this.lbl_conn_status.Name = "lbl_conn_status";
+            this.lbl_conn_status.Size = new System.Drawing.Size(68, 16);
+            this.lbl_conn_status.TabIndex = 17;
+            this.lbl_conn_status.Text = "連線中...";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1130, 664);
-            this.Controls.Add(this.btn_clamp_head);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(865, 619);
+            this.Controls.Add(this.lbl_conn_status);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.btn_capture);
+            this.Controls.Add(this.tbx_pictures);
+            this.Controls.Add(this.icImagingControl1);
+            this.Controls.Add(this.btn_home);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Camera Window";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.icImagingControl1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button btn_clamp_head;
+        private System.Windows.Forms.Button btn_home;
+        private TIS.Imaging.ICImagingControl icImagingControl1;
+        private System.Windows.Forms.TextBox tbx_pictures;
+        private System.Windows.Forms.Button btn_capture;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lbl_conn_status;
     }
 }
 
