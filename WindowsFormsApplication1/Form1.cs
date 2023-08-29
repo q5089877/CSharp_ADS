@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using TwinCAT.Ads;
 using TIS.Imaging;
 using System.Timers;
+using System.Threading;
 
 namespace WindowsFormsApplication1
 {
@@ -91,14 +92,19 @@ namespace WindowsFormsApplication1
             {
                 // 操作成功，停止定时器并更新UI
                 retryTimer.Stop();
-                
+
+                //主緒行緒委派
+                this.Invoke(new Action(() => { this.bCameraReady = true;
+                    this.adsClient.WriteAny(this.hCameraReady, this.bCameraReady);
+                }));
+              
                 UpdateUI("連線成功！");
             }
             else
             {
                 // 操作失败，继续重试
                 currentRetry++;
-                UpdateUI($"第 {currentRetry} 次重试...");
+                UpdateUI($"第 {currentRetry} 次重試...");
             }
         }
 
@@ -128,27 +134,6 @@ namespace WindowsFormsApplication1
             catch (Exception err)
             {
                 return false;
-            }
-        }
-
-        //回傳PLC CAMERA的狀態
-        private void CameraStatus()
-        {
-            try
-            {
-                if (cameraTest())
-                {
-                    bCameraReady = true;              
-                }
-                else
-                {
-                    bCameraReady = false;                 
-                }
-                adsClient.WriteAny(hCameraReady, bCameraReady);
-            }
-            catch (Exception err)
-            {
-                MessageBox.Show(err.Message);
             }
         }
 
@@ -217,10 +202,11 @@ namespace WindowsFormsApplication1
                             bCameraReady = false;
                         }
                     }
-                    else
-                    {
-                        bCameraReady = false;
-                    }
+                    //else
+                    //{
+                    //    bCameraReady = false;
+                    //}
+
                     //ADS回寫
                     adsClient.WriteAny(hCameraReady, bCameraReady);
                 }
