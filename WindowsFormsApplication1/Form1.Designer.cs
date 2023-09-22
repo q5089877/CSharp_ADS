@@ -28,25 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btn_home = new System.Windows.Forms.Button();
+            this.components = new System.ComponentModel.Container();
             this.icImagingControl1 = new TIS.Imaging.ICImagingControl();
             this.tbx_pictures = new System.Windows.Forms.TextBox();
             this.btn_capture = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.lbl_conn_status = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.icImagingControl1)).BeginInit();
             this.SuspendLayout();
-            // 
-            // btn_home
-            // 
-            this.btn_home.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.btn_home.Location = new System.Drawing.Point(750, 58);
-            this.btn_home.Name = "btn_home";
-            this.btn_home.Size = new System.Drawing.Size(96, 55);
-            this.btn_home.TabIndex = 5;
-            this.btn_home.Text = "HOME";
-            this.btn_home.UseVisualStyleBackColor = true;
-            this.btn_home.Click += new System.EventHandler(this.btn_home_Click);
             // 
             // icImagingControl1
             // 
@@ -72,9 +62,9 @@
             // btn_capture
             // 
             this.btn_capture.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.btn_capture.Location = new System.Drawing.Point(750, 119);
+            this.btn_capture.Location = new System.Drawing.Point(750, 56);
             this.btn_capture.Name = "btn_capture";
-            this.btn_capture.Size = new System.Drawing.Size(96, 55);
+            this.btn_capture.Size = new System.Drawing.Size(120, 55);
             this.btn_capture.TabIndex = 10;
             this.btn_capture.Text = "手動拍照";
             this.btn_capture.UseVisualStyleBackColor = true;
@@ -104,13 +94,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(865, 619);
+            this.ClientSize = new System.Drawing.Size(882, 607);
             this.Controls.Add(this.lbl_conn_status);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.btn_capture);
             this.Controls.Add(this.tbx_pictures);
             this.Controls.Add(this.icImagingControl1);
-            this.Controls.Add(this.btn_home);
             this.Name = "Form1";
             this.Text = "Camera Window";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -122,12 +111,12 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button btn_home;
         private TIS.Imaging.ICImagingControl icImagingControl1;
         private System.Windows.Forms.TextBox tbx_pictures;
         private System.Windows.Forms.Button btn_capture;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label lbl_conn_status;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

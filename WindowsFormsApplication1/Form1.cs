@@ -34,17 +34,17 @@ namespace WindowsFormsApplication1
 
         private int hCameraReady;   //camera ready handle
         private int hCapFinish;     //capture finished handle
-        private int hDigitalOutputs;
-        private int hAnalogOutputs;
+        //private int hDigitalOutputs;
+        //private int hAnalogOutputs;
 
         //Step4 C#端IO實際變數宣告
         [MarshalAs(UnmanagedType.I1)]
         private bool bCameraReady;  //Camera Ready      
-        private bool bDI_capture;   //capture
-        private bool bDO_CapFinish; //capture finished
+        private bool bCameraOn;   //capture
+        private bool bCameraFinState; //capture finished
         private bool bCameraInquire;       //camera Inquire
-        private bool[,] DigitalOutputs = new bool[doNum, 16];
-        private double[,] AnalogOutputs = new double[doNum, 16];
+        //private bool[,] DigitalOutputs = new bool[doNum, 16];
+        //private double[,] AnalogOutputs = new double[doNum, 16];
 
         private System.Timers.Timer retryTimer;
         int currentRetry = 0;
@@ -59,20 +59,29 @@ namespace WindowsFormsApplication1
             {
                 try
                 {
-                    //啟用camera  
+                    //啟用camera
                     MessageBox.Show("請選擇 RGB24(720*540)");
                     icImagingControl1.Sink = new TIS.Imaging.FrameSnapSink();
                     icImagingControl1.ShowDeviceSettingsDialog();
                     icImagingControl1.LiveStart();
+
+                    //clear log file
+                    FileStream file = File.Open("log.txt", FileMode.Create);
+                    StreamWriter writer = new StreamWriter(file);
+                    writer.WriteLine("-------Log Start---------");
+                    writer.Close();
+                    file.Close();
                 }
                 catch (Exception err)
                 {
                     MessageBox.Show(err.ToString());
                 }
                 retryTimer = new System.Timers.Timer();
-                retryTimer.Interval = 500;
+                retryTimer.Interval = 1000;
                 retryTimer.Elapsed += new ElapsedEventHandler(RetryTimer_Elapsed);
+
                 retryConnADS();
+                adsClient.AdsNotification += new AdsNotificationEventHandler(OnNotification);
             }
             catch (Exception err)
             {
@@ -86,27 +95,45 @@ namespace WindowsFormsApplication1
             retryTimer.Start();
         }
 
+        //檢查ADS連線情況--連線顯示用
         private void RetryTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             if (linkAds())
             {
                 // 操作成功，停止定时器并更新UI
-                retryTimer.Stop();
+                retryTimer.Stop();              
 
                 //主緒行緒委派
-                this.Invoke(new Action(() => { this.bCameraReady = true;
+                this.Invoke(new Action(() =>
+                {
+                    this.bCameraReady = true;
                     this.adsClient.WriteAny(this.hCameraReady, this.bCameraReady);
                 }));
-              
+
                 UpdateUI("連線成功！");
+                WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "連線成功" + currentRetry.ToString());
             }
             else
             {
                 // 操作失败，继续重试
                 currentRetry++;
                 UpdateUI($"第 {currentRetry} 次重試...");
+                WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "連線失敗" + currentRetry.ToString());
             }
         }
+
+
+
+
+        private void WriteLog(string log)
+        {
+            FileStream file = File.Open("log.txt", FileMode.Append);
+            StreamWriter writer = new StreamWriter(file);
+            writer.WriteLine(log);
+            writer.Close();
+            file.Close();
+        }
+
 
         private bool linkAds()
         {
@@ -116,9 +143,9 @@ namespace WindowsFormsApplication1
 
                 //Step6 取得IO Handle數值
                 hCameraReady = adsClient.CreateVariableHandle("GVL.bCameraReady");  // CameraReady
-                hCapFinish = adsClient.CreateVariableHandle("GVL.bDO_CapFinish");     // capture finish                
-                hDigitalOutputs = adsClient.CreateVariableHandle("GVL.DigitalOutputs");
-                hAnalogOutputs = adsClient.CreateVariableHandle("GVL.AnalogOutputs");
+                hCapFinish = adsClient.CreateVariableHandle("GVL.bCameraFinState");     // capture finish                
+                //hDigitalOutputs = adsClient.CreateVariableHandle("GVL.DigitalOutputs");
+                //hAnalogOutputs = adsClient.CreateVariableHandle("GVL.AnalogOutputs");
 
                 dataStream = new AdsStream(8);
                 //Encoding is set to ASCII, to read strings
@@ -126,9 +153,8 @@ namespace WindowsFormsApplication1
                 hConnect = new int[2];
 
                 //增加ADS主動回報
-                hConnect[0] = adsClient.AddDeviceNotification("GVL.bDI_capture", dataStream, 0, 1, AdsTransMode.OnChange, 100, 0, bDI_capture);
+                hConnect[0] = adsClient.AddDeviceNotification("GVL.bCameraOn", dataStream, 0, 1, AdsTransMode.OnChange, 100, 0, bCameraOn);
                 hConnect[1] = adsClient.AddDeviceNotification("GVL.bCameraInquire", dataStream, 2, 3, AdsTransMode.OnChange, 100, 0, bCameraInquire);
-                adsClient.AdsNotification += new AdsNotificationEventHandler(OnNotification);
                 return true;
             }
             catch (Exception err)
@@ -136,6 +162,7 @@ namespace WindowsFormsApplication1
                 return false;
             }
         }
+
 
         private void UpdateUI(string message)
         {
@@ -174,7 +201,8 @@ namespace WindowsFormsApplication1
                             frm.SaveAsJpeg(@tbx_pictures.Text + "\\" + dateString + ".jpg", 100);
 
                             //拍照完成
-                            bDO_CapFinish = true;
+                            bCameraFinState = true;
+                            //    MessageBox.Show("拍照完成");
                         }
                         catch (Exception err)
                         {
@@ -184,10 +212,11 @@ namespace WindowsFormsApplication1
                     else
                     {
                         //尚未拍照
-                        bDO_CapFinish = false;
+                        bCameraFinState = false;
+                        //  MessageBox.Show("尚未拍照");
                     }
                     //ADS回寫
-                    adsClient.WriteAny(hCapFinish, bDO_CapFinish);
+                    adsClient.WriteAny(hCapFinish, bCameraFinState);
                 }
                 else if (e.NotificationHandle == hConnect[1]) //camera ready
                 {
@@ -258,21 +287,6 @@ namespace WindowsFormsApplication1
                 MessageBox.Show(err.Message);
             }
             adsClient.Dispose();
-        }
-
-        private void btn_home_Click(object sender, EventArgs e)
-        {
-            //try
-            //{
-            //    //to home
-            //    DigitalInput5 = true;
-            //    // 寫入陣列                
-            //    adsClient.WriteAny(hDigitalInput5, DigitalInput5);
-            //}
-            //catch (Exception err)
-            //{
-            //    MessageBox.Show(err.Message);
-            //}
         }
 
         private void btn_capture_Click(object sender, EventArgs e)
