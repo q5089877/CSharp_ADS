@@ -34,8 +34,10 @@
             this.tbx_pictures = new System.Windows.Forms.TextBox();
             this.btn_capture = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
-            this.lbl_conn_status = new System.Windows.Forms.Label();
             this.t_try_link = new System.Windows.Forms.Timer(this.components);
+            this.lbl_conn_status = new System.Windows.Forms.Label();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.btn_dir = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.icImagingControl1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -56,7 +58,7 @@
             this.tbx_pictures.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.tbx_pictures.Location = new System.Drawing.Point(110, 610);
             this.tbx_pictures.Name = "tbx_pictures";
-            this.tbx_pictures.Size = new System.Drawing.Size(622, 27);
+            this.tbx_pictures.Size = new System.Drawing.Size(679, 27);
             this.tbx_pictures.TabIndex = 9;
             this.tbx_pictures.Text = "C:\\DOSE\\Pictures";
             // 
@@ -81,6 +83,11 @@
             this.label3.TabIndex = 16;
             this.label3.Text = "Capture Path:";
             // 
+            // t_try_link
+            // 
+            this.t_try_link.Interval = 3000;
+            this.t_try_link.Tick += new System.EventHandler(this.t_try_link_Tick);
+            // 
             // lbl_conn_status
             // 
             this.lbl_conn_status.AutoSize = true;
@@ -91,10 +98,15 @@
             this.lbl_conn_status.TabIndex = 17;
             this.lbl_conn_status.Text = "連線中...";
             // 
-            // t_try_link
+            // btn_dir
             // 
-            this.t_try_link.Interval = 3000;
-            this.t_try_link.Tick += new System.EventHandler(this.t_try_link_Tick);
+            this.btn_dir.Location = new System.Drawing.Point(795, 611);
+            this.btn_dir.Name = "btn_dir";
+            this.btn_dir.Size = new System.Drawing.Size(75, 23);
+            this.btn_dir.TabIndex = 18;
+            this.btn_dir.Text = "資料夾選擇";
+            this.btn_dir.UseVisualStyleBackColor = true;
+            this.btn_dir.Click += new System.EventHandler(this.btn_dir_Click);
             // 
             // Form1
             // 
@@ -102,6 +114,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(882, 664);
+            this.Controls.Add(this.btn_dir);
             this.Controls.Add(this.lbl_conn_status);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.btn_capture);
@@ -123,8 +136,10 @@
         private System.Windows.Forms.TextBox tbx_pictures;
         private System.Windows.Forms.Button btn_capture;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label lbl_conn_status;
         private System.Windows.Forms.Timer t_try_link;
+        private System.Windows.Forms.Label lbl_conn_status;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.Button btn_dir;
     }
 }
 

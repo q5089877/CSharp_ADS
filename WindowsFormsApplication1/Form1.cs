@@ -64,13 +64,6 @@ namespace WindowsFormsApplication1
                     icImagingControl1.Sink = new TIS.Imaging.FrameSnapSink();
                     icImagingControl1.ShowDeviceSettingsDialog();
                     icImagingControl1.LiveStart();
-
-                    //clear log file
-                    FileStream file = File.Open("log.txt", FileMode.Create);
-                    StreamWriter writer = new StreamWriter(file);
-                    writer.WriteLine("-------Log Start---------");
-                    writer.Close();
-                    file.Close();
                 }
                 catch (Exception err)
                 {
@@ -155,7 +148,7 @@ namespace WindowsFormsApplication1
 
                 //增加ADS主動回報
                 hConnect[0] = adsClient.AddDeviceNotification("GVL.bCameraOn", dataStream, 0, 1, AdsTransMode.OnChange, 100, 0, bCameraOn);
-           //     hConnect[1] = adsClient.AddDeviceNotification("GVL.bCameraInquire", dataStream, 2, 3, AdsTransMode.OnChange, 100, 0, bCameraInquire);
+                //     hConnect[1] = adsClient.AddDeviceNotification("GVL.bCameraInquire", dataStream, 2, 3, AdsTransMode.OnChange, 100, 0, bCameraInquire);
                 return true;
             }
             catch (Exception err)
@@ -191,21 +184,25 @@ namespace WindowsFormsApplication1
                             //資料夾不存在, 就建立資料夾
                             if (Directory.Exists(@tbx_pictures.Text) == false)
                             {
-                                Directory.CreateDirectory(@tbx_pictures.Text);                              
+                                Directory.CreateDirectory(@tbx_pictures.Text);
                             }
+
+                            WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " 拍照準備中");
+
                             //執行拍照
                             TIS.Imaging.FrameSnapSink snapSink = icImagingControl1.Sink as TIS.Imaging.FrameSnapSink;
-                            TIS.Imaging.IFrameQueueBuffer frm = snapSink.SnapSingle(TimeSpan.FromSeconds(3));
+                            TIS.Imaging.IFrameQueueBuffer frm = snapSink.SnapSingle(TimeSpan.FromSeconds(5));
 
                             string dateString = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"); // 使用特定日期格式  
                             frm.SaveAsJpeg(@tbx_pictures.Text + "\\" + dateString + ".jpg", 100);
 
                             //拍照完成
                             bCameraFinState = true;
-                            //    MessageBox.Show("拍照完成");
+                            WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " 完成拍照*********");
                         }
                         catch (Exception err)
                         {
+                            WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " OnNotification to Capture: " + err.ToString());
                             MessageBox.Show(err.Message);
                         }
                     }
@@ -242,6 +239,7 @@ namespace WindowsFormsApplication1
             }
             catch (Exception err)
             {
+                WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " OnNotification to Capture: " + err.ToString());
                 MessageBox.Show(err.Message);
             }
         }
@@ -253,7 +251,7 @@ namespace WindowsFormsApplication1
                 //資料夾不存在, 就建立資料夾
                 if (Directory.Exists(@"c:\temp\") == false)
                 {
-                    Directory.CreateDirectory(@"c:\temp\");                  
+                    Directory.CreateDirectory(@"c:\temp\");
                 }
                 //執行拍照
                 TIS.Imaging.FrameSnapSink snapSink = icImagingControl1.Sink as TIS.Imaging.FrameSnapSink;
@@ -264,6 +262,7 @@ namespace WindowsFormsApplication1
             }
             catch (Exception err)
             {
+                WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " cameraTest:  " + err.ToString());
                 return false;
             }
         }
@@ -295,7 +294,7 @@ namespace WindowsFormsApplication1
                 //資料夾不存在, 就建立資料夾
                 if (Directory.Exists(@tbx_pictures.Text) == false)
                 {
-                    Directory.CreateDirectory(@tbx_pictures.Text);                
+                    Directory.CreateDirectory(@tbx_pictures.Text);
                 }
                 //執行拍照
                 TIS.Imaging.FrameSnapSink snapSink = icImagingControl1.Sink as TIS.Imaging.FrameSnapSink;
@@ -306,6 +305,7 @@ namespace WindowsFormsApplication1
             }
             catch (Exception err)
             {
+                WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " btn_capture_Click");
                 MessageBox.Show(err.Message);
             }
         }
@@ -323,6 +323,23 @@ namespace WindowsFormsApplication1
                 t_try_link.Enabled = false;
                 this.lbl_conn_status.Text = "連線中斷，請啟動Twincat後，再重啟軟體";
                 MessageBox.Show("連線中斷，請啟動Twincat後，再重啟軟體");
+            }
+        }
+
+        private void btn_dir_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+
+            // 設置對話方塊的描述資訊和根資料夾
+            folderBrowserDialog.Description = "選擇一個資料夾";
+            folderBrowserDialog.RootFolder = Environment.SpecialFolder.MyComputer;
+
+            // 如果使用者點擊了“確定”按鈕
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                string selectedFolder = folderBrowserDialog.SelectedPath;
+                // 將選擇的資料夾路徑顯示在某個控制項中，例如一個文字方塊
+                tbx_pictures .Text = selectedFolder;
             }
         }
     }
