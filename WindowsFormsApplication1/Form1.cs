@@ -101,11 +101,12 @@ namespace WindowsFormsApplication1
             if (linkAds())
             {
                 // 操作成功，停止定时器并更新UI
-                retryTimer.Stop();              
+                retryTimer.Stop();
 
                 //主緒行緒委派
                 this.Invoke(new Action(() =>
                 {
+                    this.t_try_link.Enabled = true; // check link status
                     this.bCameraReady = true;
                     this.adsClient.WriteAny(this.hCameraReady, this.bCameraReady);
                 }));
@@ -154,7 +155,7 @@ namespace WindowsFormsApplication1
 
                 //增加ADS主動回報
                 hConnect[0] = adsClient.AddDeviceNotification("GVL.bCameraOn", dataStream, 0, 1, AdsTransMode.OnChange, 100, 0, bCameraOn);
-                hConnect[1] = adsClient.AddDeviceNotification("GVL.bCameraInquire", dataStream, 2, 3, AdsTransMode.OnChange, 100, 0, bCameraInquire);
+           //     hConnect[1] = adsClient.AddDeviceNotification("GVL.bCameraInquire", dataStream, 2, 3, AdsTransMode.OnChange, 100, 0, bCameraInquire);
                 return true;
             }
             catch (Exception err)
@@ -190,8 +191,7 @@ namespace WindowsFormsApplication1
                             //資料夾不存在, 就建立資料夾
                             if (Directory.Exists(@tbx_pictures.Text) == false)
                             {
-                                Directory.CreateDirectory(@tbx_pictures.Text);
-                                MessageBox.Show("Created a new Directory.");
+                                Directory.CreateDirectory(@tbx_pictures.Text);                              
                             }
                             //執行拍照
                             TIS.Imaging.FrameSnapSink snapSink = icImagingControl1.Sink as TIS.Imaging.FrameSnapSink;
@@ -253,8 +253,7 @@ namespace WindowsFormsApplication1
                 //資料夾不存在, 就建立資料夾
                 if (Directory.Exists(@"c:\temp\") == false)
                 {
-                    Directory.CreateDirectory(@"c:\temp\");
-                    MessageBox.Show("Created a new Directory.");
+                    Directory.CreateDirectory(@"c:\temp\");                  
                 }
                 //執行拍照
                 TIS.Imaging.FrameSnapSink snapSink = icImagingControl1.Sink as TIS.Imaging.FrameSnapSink;
@@ -296,8 +295,7 @@ namespace WindowsFormsApplication1
                 //資料夾不存在, 就建立資料夾
                 if (Directory.Exists(@tbx_pictures.Text) == false)
                 {
-                    Directory.CreateDirectory(@tbx_pictures.Text);
-                    MessageBox.Show("Created a new Directory.");
+                    Directory.CreateDirectory(@tbx_pictures.Text);                
                 }
                 //執行拍照
                 TIS.Imaging.FrameSnapSink snapSink = icImagingControl1.Sink as TIS.Imaging.FrameSnapSink;
@@ -309,6 +307,22 @@ namespace WindowsFormsApplication1
             catch (Exception err)
             {
                 MessageBox.Show(err.Message);
+            }
+        }
+
+        private void t_try_link_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                //adsClient.Connect(851);
+                //hCameraReady = adsClient.CreateVariableHandle("GVL.bCameraReady");  // CameraReady
+                //WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " try adsClient.Connect(851)");
+            }
+            catch
+            {
+                t_try_link.Enabled = false;
+                this.lbl_conn_status.Text = "連線中斷，請啟動Twincat後，再重啟軟體";
+                MessageBox.Show("連線中斷，請啟動Twincat後，再重啟軟體");
             }
         }
     }

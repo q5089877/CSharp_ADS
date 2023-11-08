@@ -29,12 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.icImagingControl1 = new TIS.Imaging.ICImagingControl();
             this.tbx_pictures = new System.Windows.Forms.TextBox();
             this.btn_capture = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.lbl_conn_status = new System.Windows.Forms.Label();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.t_try_link = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.icImagingControl1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -45,7 +46,7 @@
             this.icImagingControl1.DeviceLostExecutionMode = TIS.Imaging.EventExecutionMode.AsyncInvoke;
             this.icImagingControl1.ImageAvailableExecutionMode = TIS.Imaging.EventExecutionMode.MultiThreaded;
             this.icImagingControl1.LiveDisplayPosition = new System.Drawing.Point(0, 0);
-            this.icImagingControl1.Location = new System.Drawing.Point(12, 14);
+            this.icImagingControl1.Location = new System.Drawing.Point(12, 56);
             this.icImagingControl1.Name = "icImagingControl1";
             this.icImagingControl1.Size = new System.Drawing.Size(720, 540);
             this.icImagingControl1.TabIndex = 7;
@@ -53,7 +54,7 @@
             // tbx_pictures
             // 
             this.tbx_pictures.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.tbx_pictures.Location = new System.Drawing.Point(110, 568);
+            this.tbx_pictures.Location = new System.Drawing.Point(110, 610);
             this.tbx_pictures.Name = "tbx_pictures";
             this.tbx_pictures.Size = new System.Drawing.Size(622, 27);
             this.tbx_pictures.TabIndex = 9;
@@ -74,7 +75,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.label3.Location = new System.Drawing.Point(12, 571);
+            this.label3.Location = new System.Drawing.Point(12, 613);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(92, 16);
             this.label3.TabIndex = 16;
@@ -84,24 +85,31 @@
             // 
             this.lbl_conn_status.AutoSize = true;
             this.lbl_conn_status.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.lbl_conn_status.Location = new System.Drawing.Point(747, 27);
+            this.lbl_conn_status.Location = new System.Drawing.Point(9, 20);
             this.lbl_conn_status.Name = "lbl_conn_status";
             this.lbl_conn_status.Size = new System.Drawing.Size(68, 16);
             this.lbl_conn_status.TabIndex = 17;
             this.lbl_conn_status.Text = "連線中...";
             // 
+            // t_try_link
+            // 
+            this.t_try_link.Interval = 3000;
+            this.t_try_link.Tick += new System.EventHandler(this.t_try_link_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(882, 607);
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.ClientSize = new System.Drawing.Size(882, 664);
             this.Controls.Add(this.lbl_conn_status);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.btn_capture);
             this.Controls.Add(this.tbx_pictures);
             this.Controls.Add(this.icImagingControl1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
-            this.Text = "Camera Window";
+            this.Text = "Camera Window V0.7 2023_10_11";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.icImagingControl1)).EndInit();
@@ -116,7 +124,7 @@
         private System.Windows.Forms.Button btn_capture;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label lbl_conn_status;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer t_try_link;
     }
 }
 
