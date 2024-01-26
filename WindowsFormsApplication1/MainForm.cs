@@ -13,6 +13,7 @@ using TIS.Imaging;
 using TwinCAT.Ads;
 using DOSE_CAMERA.MyClass;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace DOSE_CAMERA
 {
@@ -21,8 +22,6 @@ namespace DOSE_CAMERA
         log log = new log();
         //AdsLink ads_link;
         MyCapture capture_camera_1, capture_camera_2;
-        MyCamera camera_device_1;
-        MyCamera camera_device_2;
 
         private System.Timers.Timer retryTimer;
         //Step2 ADS Client宣告
@@ -88,7 +87,7 @@ namespace DOSE_CAMERA
         void camera_init()
         {
             //啟用camera
-            MessageBox.Show("請選擇 RGB24(720*540)");
+            MessageBox.Show("請選擇 RGB24(720*540)，位置不對時，請更改Device Name即可");
             icImagingControl1.Sink = new TIS.Imaging.FrameSnapSink();
             icImagingControl1.ShowDeviceSettingsDialog();
             icImagingControl1.LiveStart();
@@ -109,7 +108,7 @@ namespace DOSE_CAMERA
         //檢查ADS連線情況--連線顯示用
         private void RetryTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (link_ADS(this.camera_device_1) && link_ADS(camera_device_2))
+            if (link_ADS())
             {
                 retryTimer.Stop();
                 this.lbl_link_status.Invoke((Action<string>)(msg => this.lbl_link_status.Text = msg), "連線成功");
@@ -124,7 +123,7 @@ namespace DOSE_CAMERA
             }
         }
 
-        private bool link_ADS(MyCamera camera_device)
+        private bool link_ADS()
         {
             try
             {
@@ -198,7 +197,7 @@ namespace DOSE_CAMERA
                     }
                 }
 
-                else if (e.NotificationHandle == hConnect[1]) //caomera_2 capture image
+                if (e.NotificationHandle == hConnect[1]) //caomera_2 capture image
                 {
                     if (binRead.ReadBoolean())
                     {
@@ -213,8 +212,7 @@ namespace DOSE_CAMERA
 
                             log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " 拍照準備中");
 
-                            //執行拍照
-                            string dateString = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"); // 使用特定日期格式  
+                            //執行拍照                           
                             if (capture_camera_2.capture_image(@tbx_pictures.Text))
                             {
                                 bCameraFinState_ch2 = true;
@@ -249,7 +247,10 @@ namespace DOSE_CAMERA
 
         private void btn_capture_manual_Click(object sender, EventArgs e)
         {
-
+            //執行拍照         
+            capture_camera_1.capture_image(@tbx_pictures.Text);
+            Thread.Sleep(2000);        
+            capture_camera_2.capture_image(@tbx_pictures.Text);
         }
 
         private void btn_dir_Click(object sender, EventArgs e)
