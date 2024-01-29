@@ -67,16 +67,17 @@ namespace DOSE_CAMERA
             adsClient.AdsNotification += new AdsNotificationEventHandler(OnNotification);
             adsClient.Connect(851);
 
-            if (!camera_capture_test())
-            {
-                MessageBox.Show("Camera拍照失敗");
-                log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "Camera拍照失敗");
-            }
-            else
-            {
-                MessageBox.Show("Camera拍照測試完成");
-                log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "Camera拍照測試完成");
-            }
+            //if (!camera_capture_test())
+            //{
+            //    MessageBox.Show("Camera拍照失敗");
+            //    log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "Camera拍照失敗");
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Camera拍照測試完成");
+            //    adsClient.WriteAny(hCameraReady, bCameraReady);
+            //    log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "Camera拍照測試完成");
+            //}
 
             retryTimer = new System.Timers.Timer();
             retryTimer.Interval = 1000;
@@ -95,15 +96,7 @@ namespace DOSE_CAMERA
             icImagingControl2.Sink = new TIS.Imaging.FrameSnapSink();
             icImagingControl2.ShowDeviceSettingsDialog();
             icImagingControl2.LiveStart();
-        }
-
-        bool camera_capture_test()
-        {
-            if (capture_camera_1.camera_capture_test() && capture_camera_2.camera_capture_test())
-                return true;
-            else
-                return false;
-        }
+        }       
 
         //檢查ADS連線情況--連線顯示用
         private void RetryTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -141,6 +134,9 @@ namespace DOSE_CAMERA
                 //增加ADS主動回報
                 hConnect[0] = adsClient.AddDeviceNotification("GVL.bCameraOn", dataStream, 0, 1, AdsTransMode.OnChange, 100, 0, bCameraOn);
                 hConnect[1] = adsClient.AddDeviceNotification("GVL.bCameraOn_ch2", dataStream, 1, 1, AdsTransMode.OnChange, 100, 0, bCameraOn_ch2);
+                //hConnect[3] = adsClient.AddDeviceNotification("GVL.bCameraReady", dataStream, 2, 1, AdsTransMode.OnChange, 100, 0, bCameraOn_ch2);
+                //hConnect[4] = adsClient.AddDeviceNotification("GVL.bCameraReady_ch2", dataStream, 3, 1, AdsTransMode.OnChange, 100, 0, bCameraOn_ch2);
+
                 return true;
             }
             catch (Exception err)
@@ -238,6 +234,33 @@ namespace DOSE_CAMERA
                         bCameraFinState_ch2 = false;
                     }
                 }
+
+
+                if (capture_camera_1.camera_capture_test())
+                {                 
+                    //主緒行緒委派
+                    this.Invoke(new Action(() =>
+                    {
+                        this.bCameraReady = true;
+                        this.adsClient.WriteAny(this.hCameraReady, this.bCameraReady);
+                    }));
+                    log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "camera_capture_test1() 測試成功");
+                }
+
+                if (capture_camera_2.camera_capture_test())
+                {                  
+                    //主緒行緒委派
+                    this.Invoke(new Action(() =>
+                    {
+                        this.bCameraReady_ch2 = true;
+                        this.adsClient.WriteAny(this.hCameraReady_ch2, this.bCameraReady_ch2);
+                    }));
+                    log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "camera_capture_test2() 測試成功");
+                }             
+                else
+                {
+                    log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "camera_capture_test() 測試失敗");
+                }
             }
             catch (Exception err)
             {
@@ -249,7 +272,7 @@ namespace DOSE_CAMERA
         {
             //執行拍照         
             capture_camera_1.capture_image(@tbx_pictures.Text);
-            Thread.Sleep(2000);        
+            Thread.Sleep(2000);
             capture_camera_2.capture_image(@tbx_pictures.Text);
         }
 
