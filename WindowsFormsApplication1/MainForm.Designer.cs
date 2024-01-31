@@ -127,6 +127,7 @@
             this.Controls.Add(this.icImagingControl1);
             this.Name = "MainForm";
             this.Text = "MainForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.icImagingControl1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.icImagingControl2)).EndInit();

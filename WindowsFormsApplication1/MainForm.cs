@@ -60,24 +60,11 @@ namespace DOSE_CAMERA
         private void MainForm_Load(object sender, EventArgs e)
         {
             camera_init();
-
             capture_camera_1 = new MyCapture(icImagingControl1);
             capture_camera_2 = new MyCapture(icImagingControl2);
 
             adsClient.AdsNotification += new AdsNotificationEventHandler(OnNotification);
             adsClient.Connect(851);
-
-            //if (!camera_capture_test())
-            //{
-            //    MessageBox.Show("Camera拍照失敗");
-            //    log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "Camera拍照失敗");
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Camera拍照測試完成");
-            //    adsClient.WriteAny(hCameraReady, bCameraReady);
-            //    log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "Camera拍照測試完成");
-            //}
 
             retryTimer = new System.Timers.Timer();
             retryTimer.Interval = 1000;
@@ -150,8 +137,10 @@ namespace DOSE_CAMERA
         {
             try
             {
+                //利用hConnect[0] = adsClient.AddDeviceNotification("GVL.bCameraOn", dataStream, 0, 1, AdsTransMode.OnChange, 100, 0, bCameraOn);
                 if (e.NotificationHandle == hConnect[0]) //Camera_1 capture image
                 {
+                    //拍照
                     if (binRead.ReadBoolean())
                     {
                         log.WriteLog("if (e.NotificationHandle == hConnect[0])");
@@ -171,8 +160,6 @@ namespace DOSE_CAMERA
                             {
                                 bCameraFinState = true;
                                 log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " 完成拍照*********");
-                                //ADS回寫     
-                                adsClient.WriteAny(hCapFinish, bCameraFinState);
                             }
                             else
                             {
@@ -191,10 +178,14 @@ namespace DOSE_CAMERA
                         //尚未拍照
                         bCameraFinState = false;
                     }
+                    //ADS回寫     
+                    adsClient.WriteAny(hCapFinish, bCameraFinState);
                 }
 
+                //hConnect[1] = adsClient.AddDeviceNotification("GVL.bCameraOn_ch2", dataStream, 1, 1, AdsTransMode.OnChange, 100, 0, bCameraOn_ch2);
                 if (e.NotificationHandle == hConnect[1]) //caomera_2 capture image
                 {
+                    //拍照
                     if (binRead.ReadBoolean())
                     {
                         log.WriteLog("if (e.NotificationHandle == hConnect[1])");
@@ -213,8 +204,6 @@ namespace DOSE_CAMERA
                             {
                                 bCameraFinState_ch2 = true;
                                 log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " 完成拍照*********");
-                                //ADS回寫     
-                                adsClient.WriteAny(hCapFinish_ch2, bCameraFinState_ch2);
                             }
                             else
                             {
@@ -233,8 +222,9 @@ namespace DOSE_CAMERA
                         //尚未拍照
                         bCameraFinState_ch2 = false;
                     }
+                    //ADS回寫     
+                    adsClient.WriteAny(hCapFinish_ch2, bCameraFinState_ch2);
                 }
-
 
                 if (capture_camera_1.camera_capture_test())
                 {                 
@@ -274,6 +264,28 @@ namespace DOSE_CAMERA
             capture_camera_1.capture_image(@tbx_pictures.Text);
             Thread.Sleep(2000);
             capture_camera_2.capture_image(@tbx_pictures.Text);
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                //主動告知Camera下線
+                bCameraReady = false;
+                bCameraReady_ch2 = false;
+                adsClient.WriteAny(hCameraReady, bCameraReady);
+                adsClient.WriteAny(hCameraReady_ch2, bCameraReady_ch2);
+
+                for (int i = 0; i < 2; i++)
+                {
+                    adsClient.DeleteDeviceNotification(hConnect[i]);
+                }
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message);
+            }
+            adsClient.Dispose();
         }
 
         private void btn_dir_Click(object sender, EventArgs e)
