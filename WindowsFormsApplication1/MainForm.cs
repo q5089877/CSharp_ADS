@@ -14,6 +14,7 @@ using TwinCAT.Ads;
 using DOSE_CAMERA.MyClass;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Configuration;
 
 namespace DOSE_CAMERA
 {
@@ -52,6 +53,10 @@ namespace DOSE_CAMERA
 
         int current_try_count = 0;
 
+        private System.Windows.Forms.Timer cameraWatchdogTimer;
+        private DateTime lastFrameTime_cam1 = DateTime.Now;
+        private DateTime lastFrameTime_cam2 = DateTime.Now;
+
         public MainForm()
         {
             InitializeComponent();
@@ -59,31 +64,90 @@ namespace DOSE_CAMERA
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            camera_init();
+            // 先啟動相機串流
+            InitCamera(icImagingControl1, 1);
+            InitCamera(icImagingControl2, 2);
+
             capture_camera_1 = new MyCapture(icImagingControl1);
             capture_camera_2 = new MyCapture(icImagingControl2);
 
-            adsClient.AdsNotification += new AdsNotificationEventHandler(OnNotification);
-            adsClient.Connect(851);
+            // ADS 連線與通知
+            try
+            {
+                adsClient.AdsNotification += OnNotification;
+                adsClient.Connect(851);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("ADS 連線失敗：" + ex.Message);
+                log.WriteLog($"ADS 連線失敗：{ex}");
+            }
 
-            retryTimer = new System.Timers.Timer();
-            retryTimer.Interval = 1000;
-            retryTimer.Elapsed += new ElapsedEventHandler(RetryTimer_Elapsed);
+            // 啟動重試計時器...
+            retryTimer = new System.Timers.Timer(1000);
+            retryTimer.Elapsed += RetryTimer_Elapsed;
             retryTimer.Start();
         }
 
-        void camera_init()
+        public void InitCamera(ICImagingControl ctrl, int index)
         {
-            //啟用camera
-            MessageBox.Show("請選擇 RGB24(720*540)，位置不對時，請更改Device Name即可");
-            icImagingControl1.Sink = new TIS.Imaging.FrameSnapSink();
-            icImagingControl1.ShowDeviceSettingsDialog();
-            icImagingControl1.LiveStart();
+            string prefix = "Camera" + index.ToString() + "_";
+            string name = ConfigurationManager.AppSettings[prefix + "Name"];
+            string serial = ConfigurationManager.AppSettings[prefix + "Serial"];
+            string format = ConfigurationManager.AppSettings[prefix + "Format"];
+            string fpsText = ConfigurationManager.AppSettings[prefix + "FPS"];
+            bool flipH = false, flipV = false;
+            float fps = 0;
 
-            icImagingControl2.Sink = new TIS.Imaging.FrameSnapSink();
-            icImagingControl2.ShowDeviceSettingsDialog();
-            icImagingControl2.LiveStart();
-        }       
+            bool.TryParse(ConfigurationManager.AppSettings[prefix + "FlipH"], out flipH);
+            bool.TryParse(ConfigurationManager.AppSettings[prefix + "FlipV"], out flipV);
+            float.TryParse(fpsText, out fps);
+
+            try
+            {
+                // 1. 選擇裝置（Name + Serial）
+                foreach (Device dev in ctrl.Devices)
+                {
+                    if (dev.Name == name)
+                    {
+                        ctrl.Device = dev;
+                        ctrl.Sink = new FrameSnapSink();  // ✅ 關鍵補上這行
+                        break;
+                    }
+                }
+
+                // 2. 設定解析度+像素格式
+                foreach (VideoFormat vf in ctrl.VideoFormats)
+                {
+                    if (vf.ToString().Contains(format))
+                    {
+                        ctrl.VideoFormat = vf;
+                        break;
+                    }
+                }
+
+                // 3. 設定幀率（DeviceFrameRate）
+                if (fps > 0 && ctrl.DeviceFrameRateAvailable)
+                {
+                    ctrl.DeviceFrameRate = fps;
+                }
+
+                // 4. 設定翻轉（DeviceFlipHorizontal/Vertical）
+                if (ctrl.DeviceFlipHorizontalAvailable)
+                    ctrl.DeviceFlipHorizontal = flipH;
+                if (ctrl.DeviceFlipVerticalAvailable)
+                    ctrl.DeviceFlipVertical = flipV;
+
+                // 5. 啟動串流
+                ctrl.LiveDisplayDefault = true;
+                ctrl.LiveStart();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Camera" + index.ToString() + " 初始化錯誤：" + ex.Message);
+            }
+        }
+
 
         //檢查ADS連線情況--連線顯示用
         private void RetryTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -128,7 +192,6 @@ namespace DOSE_CAMERA
             }
             catch (Exception err)
             {
-                log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + " link_ADS" + err.ToString());
                 return false;
             }
         }
@@ -227,7 +290,7 @@ namespace DOSE_CAMERA
                 }
 
                 if (capture_camera_1.camera_capture_test())
-                {                 
+                {
                     //主緒行緒委派
                     this.Invoke(new Action(() =>
                     {
@@ -238,7 +301,7 @@ namespace DOSE_CAMERA
                 }
 
                 if (capture_camera_2.camera_capture_test())
-                {                  
+                {
                     //主緒行緒委派
                     this.Invoke(new Action(() =>
                     {
@@ -246,7 +309,7 @@ namespace DOSE_CAMERA
                         this.adsClient.WriteAny(this.hCameraReady_ch2, this.bCameraReady_ch2);
                     }));
                     log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "camera_capture_test2() 測試成功");
-                }             
+                }
                 else
                 {
                     log.WriteLog(DateTime.Now.ToString("yyyyMMdd HH-mm-ss") + "camera_capture_test() 測試失敗");
@@ -261,15 +324,29 @@ namespace DOSE_CAMERA
         private void btn_capture_manual_Click(object sender, EventArgs e)
         {
             //執行拍照         
-            capture_camera_1.capture_image(@tbx_pictures.Text);
+            if (!capture_camera_1.capture_image(@tbx_pictures.Text))
+            {
+                MessageBox.Show("Camera 1 拍照失敗");
+            }
             Thread.Sleep(2000);
-            capture_camera_2.capture_image(@tbx_pictures.Text);
+            if (!capture_camera_2.capture_image(@tbx_pictures.Text))
+            {
+                MessageBox.Show("Camera 2 拍照失敗");
+            }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             try
             {
+                icImagingControl1.LiveStop();
+                icImagingControl1.Sink = null;
+                icImagingControl1.Device = null;
+
+                icImagingControl2.LiveStop();
+                icImagingControl2.Sink = null;
+                icImagingControl2.Device = null;
+
                 //主動告知Camera下線
                 bCameraReady = false;
                 bCameraReady_ch2 = false;
@@ -280,6 +357,8 @@ namespace DOSE_CAMERA
                 {
                     adsClient.DeleteDeviceNotification(hConnect[i]);
                 }
+
+
             }
             catch (Exception err)
             {

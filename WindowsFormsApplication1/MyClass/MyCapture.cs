@@ -65,6 +65,6 @@ namespace DOSE_CAMERA.MyClass
                 //MessageBox.Show(err.Message);
                 return false;
             }
-        }
+        }     
     }
 }
